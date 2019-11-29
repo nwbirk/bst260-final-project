@@ -76,7 +76,75 @@ Now, we may combine the separate datasets. For purposes of linear regression, we
 dat_annual <- full_join(fruitveg, covariates2, by = 'year')
 
 head(dat_annual)
-#dat_by_var 
+```
+
+```{r}
+#Now we create the dataset for our time series plots
+dat_series <- inner_join(bananas, peaches, by = 'year')
+colnames(dat_series)[2:3] <- c('bananas', 'peaches')
+dat_series <- inner_join(dat_series, apples, by = 'year')
+colnames(dat_series)[4] <- 'apples'
+dat_series <- inner_join(dat_series, avocados, by = 'year')
+colnames(dat_series)[5] <- 'avocados'
+dat_series <- inner_join(dat_series, bellpeppers, by = 'year')
+colnames(dat_series)[6] <- 'bellpeppers'
+dat_series <- inner_join(dat_series, broccoli, by = 'year')
+colnames(dat_series)[7] <- 'broccoli'
+dat_series <- inner_join(dat_series, cabbage, by = 'year')
+colnames(dat_series)[8] <- 'cabbage'
+dat_series <- inner_join(dat_series, carrots, by = 'year')
+colnames(dat_series)[9] <- 'carrots'
+dat_series <- inner_join(dat_series, eggplant, by = 'year')
+colnames(dat_series)[10] <- 'eggplant'
+dat_series <- inner_join(dat_series, grapes, by = 'year')
+colnames(dat_series)[11] <- 'grapes'
+dat_series <- inner_join(dat_series, lemons, by = 'year')
+colnames(dat_series)[12] <- 'lemons'
+dat_series <- inner_join(dat_series, mushrooms, by = 'year')
+colnames(dat_series)[13] <- 'mushrooms'
+dat_series <- inner_join(dat_series, onions, by = 'year')
+colnames(dat_series)[14] <- 'onions'
+dat_series <- inner_join(dat_series, oranges, by = 'year')
+colnames(dat_series)[15] <- 'oranges'
+dat_series <- inner_join(dat_series, pears, by = 'year')
+colnames(dat_series)[16] <- 'pears'
+dat_series <- inner_join(dat_series, pineapples, by = 'year')
+colnames(dat_series)[17] <- 'pineapples'
+dat_series <- inner_join(dat_series, potatoes, by = 'year')
+colnames(dat_series)[18] <- 'potatoes'
+dat_series <- inner_join(dat_series, spinach, by = 'year')
+colnames(dat_series)[19] <- 'spinach'
+dat_series <- inner_join(dat_series, tomatoes, by = 'year')
+colnames(dat_series)[20] <- 'tomatoes'
+dat_series <- inner_join(dat_series, watermelon, by = 'year')
+colnames(dat_series)[21] <- 'watermelon'
+
+
+#UPDATE THIS WHENEVER YOU ADD SOMETHING
+dat_series <- gather(dat_series, fruit, value, bananas:watermelon)
+
+dat_series$emoji_code <- ''
+
+dat_series$emoji_code[dat_series$fruit == 'bananas'] <- '1f34c'
+dat_series$emoji_code[dat_series$fruit == 'peaches'] <- '1f351'
+dat_series$emoji_code[dat_series$fruit == 'apples'] <- '1f34e'
+dat_series$emoji_code[dat_series$fruit == 'avocados'] <- '1f951'
+dat_series$emoji_code[dat_series$fruit == 'bellpeppers'] <- '1f336'
+dat_series$emoji_code[dat_series$fruit == 'broccoli'] <- '1f966'
+dat_series$emoji_code[dat_series$fruit == 'cabbage'] <-'1f957'
+dat_series$emoji_code[dat_series$fruit == 'carrots'] <-'1f955'
+dat_series$emoji_code[dat_series$fruit == 'eggplant'] <-'1f346'
+dat_series$emoji_code[dat_series$fruit == 'grapes'] <-'1f347'
+dat_series$emoji_code[dat_series$fruit == 'lemons'] <-'1f34b'
+dat_series$emoji_code[dat_series$fruit == 'mushrooms'] <-'1f344'
+dat_series$emoji_code[dat_series$fruit == 'onions'] <-'1f348'
+dat_series$emoji_code[dat_series$fruit == 'oranges'] <-'1f34a'
+dat_series$emoji_code[dat_series$fruit == 'pears'] <-'1f350'
+dat_series$emoji_code[dat_series$fruit == 'pineapples'] <-'1f34d'
+dat_series$emoji_code[dat_series$fruit == 'potatoes'] <-'1f954'
+dat_series$emoji_code[dat_series$fruit == 'spinach'] <-'1f343'
+dat_series$emoji_code[dat_series$fruit == 'tomatoes'] <-'1f345'
+dat_series$emoji_code[dat_series$fruit == 'watermelon'] <-'1f349'
 ```
 
 
@@ -112,6 +180,19 @@ library(emoGG)
 fruitlist = c('bananas', 'peaches')
 ```
 
+Got to do an experiment! How to change emojis :)
+```{r}
+froot <- '1f34c'
+
+dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = '1f348')
+```
+
+So why does this not work??
+```{r}
+froot <- '1f34c'
+
+dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = froot)
+```
 
 Here is a sample app:
 ```{r, eval = FALSE}
@@ -127,7 +208,7 @@ ui <- fluidPage(
       sidebarLayout(
         sidebarPanel(
           selectInput("product", label = "Select a product",
-                             choices = fruitlist)),
+                             choices = sort(unique(dat_series$fruit)))),
       mainPanel(plotOutput('linePlot'))
                )),
     
@@ -150,14 +231,13 @@ ui <- fluidPage(
 
 # Define server
 server <- function(input, output) {
-  
-    gap_year <- reactive(gapminder %>% filter(year == input$year))
     
   output$linePlot = renderPlot({
-    bananas %>% 
-      ggplot(aes(x = year, y = total)) + 
-      geom_emoji(emoji="1f34c", size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle('Banans!') + xlab('Year') +
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      #geom_emoji(emoji = as.character(dat_series$emoji_code[1]), size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   })
   
@@ -171,5 +251,264 @@ server <- function(input, output) {
 
 shinyApp(ui = ui, server = server)
 ```
+
+The above app experiences errors due to the geom_emoji() function being picky! This less elegant solution does the trick, however.
+
+```{r, eval = FALSE}
+# Define UI
+ui <- fluidPage( 
+  theme = shinythemes::shinytheme("darkly"),
+  titlePanel("US Per Capita Produce Availability"),
+  
+  tabsetPanel(
+    
+    
+    tabPanel('Specific Products Time Series',
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("product", label = "Select a product",
+                             choices = sort(unique(dat_series$fruit)))),
+      mainPanel(plotOutput('linePlot'))
+               )),
+    
+    
+    
+    tabPanel('Variable Associations',
+      sidebarLayout(
+        sidebarPanel(
+          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = colnames(dat_annual)[2:15], selected = 'diabetes_percent'
+                           ),
+             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = colnames(dat_annual)[2:15], selected = 'total_fruit_veg'
+                           )),
+             
+      mainPanel(plotOutput("scatterPlot"))
+    ))
+  )
+  )
+
+
+
+# Define server
+server <- function(input, output) {
+     
+  output$linePlot = renderPlot({
+    if (input$product == 'bananas'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34c', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }
+    
+  else if (input$product == 'peaches'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f351', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }
+    
+  else if (input$product == 'apples'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34e', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    else if (input$product == 'avocados'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f951', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
+    
+     else if (input$product == 'bellpeppers'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f336', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    else if (input$product == 'broccoli'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f966', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+     else if (input$product == 'cabbage'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f957', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+     else if (input$product == 'carrots'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f955', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    else if (input$product == 'eggplant'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f346', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
+    
+    else if (input$product == 'grapes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f347', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
+    
+     else if (input$product == 'lemons'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34b', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+        else if (input$product == 'mushrooms'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f344', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+        else if (input$product == 'onions'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f348', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+        else if (input$product == 'oranges'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34a', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+       else if (input$product == 'pears'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f350', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+       }  
+    
+        else if (input$product == 'pineapples'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34d', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+     else if (input$product == 'potatoes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f954', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+         else if (input$product == 'spinach'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f343', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+         }  
+    
+             else if (input$product == 'tomatoes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f345', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+             }  
+    
+                 else if (input$product == 'watermelon'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f349', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    
+   
+  })
+  output$scatterPlot = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(input$yvari, ' by ', input$xvari)) + xlab(input$xvari) + ylab(input$yvari)  + geom_smooth()
+  })
+  
+  
+
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+Heres the list btw
+dat_series$emoji_code[dat_series$fruit == 'bananas'] <- '1f34c'
+dat_series$emoji_code[dat_series$fruit == 'peaches'] <- '1f351'
+dat_series$emoji_code[dat_series$fruit == 'apples'] <- '1f34e'
+dat_series$emoji_code[dat_series$fruit == 'avocados'] <- '1f951'
+dat_series$emoji_code[dat_series$fruit == 'bellpeppers'] <- '1f336'
+dat_series$emoji_code[dat_series$fruit == 'broccoli'] <- '1f966'
+dat_series$emoji_code[dat_series$fruit == 'cabbage'] <-'1f957'
+dat_series$emoji_code[dat_series$fruit == 'carrots'] <-'1f955'
+dat_series$emoji_code[dat_series$fruit == 'eggplant'] <-'1f346'
+dat_series$emoji_code[dat_series$fruit == 'grapes'] <-'1f347'
+dat_series$emoji_code[dat_series$fruit == 'lemons'] <-'1f34b'
+dat_series$emoji_code[dat_series$fruit == 'mushrooms'] <-'1f344'
+dat_series$emoji_code[dat_series$fruit == 'onions'] <-'1f348'
+dat_series$emoji_code[dat_series$fruit == 'oranges'] <-'1f34a'
+dat_series$emoji_code[dat_series$fruit == 'pears'] <-'1f350'
+dat_series$emoji_code[dat_series$fruit == 'pineapples'] <-'1f34d'
+dat_series$emoji_code[dat_series$fruit == 'potatoes'] <-'1f954'
+dat_series$emoji_code[dat_series$fruit == 'spinach'] <-'1f343'
+dat_series$emoji_code[dat_series$fruit == 'tomatoes'] <-'1f345'
+dat_series$emoji_code[dat_series$fruit == 'watermelon'] <-'1f349'
+
+
+
 
 
