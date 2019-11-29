@@ -23,6 +23,7 @@ library(tidyverse)
 
 #Total fruit and vegetable data
 fruitveg <- read.csv('fruitveg.csv')
+colnames(fruitveg)[1] <- 'year'
 
 #Specific fruits and vegetables
 apples <- read.csv('apples.csv')
@@ -47,7 +48,13 @@ tomatoes <- read.csv('tomatoes.csv')
 watermelon <- read.csv('watermelon.csv')
 ```
 
-Now, we can read in the data for potential covariates. Sources include the gapminder dataset, 
+Now, we can read in the data for potential covariates. Sources include the gapminder dataset, USDA, CDC, US Bureau of Labor Statistics, and Centers for Medicare & Medicaid Services. Note that diabetes prevlance data is not available for all years.
+
+```{r}
+covariates <- read.csv('outcomes.csv')
+```
+
+Note that farm income is in terms of 2019 dollars (ie adjusted for inflation).
 
 ```{r}
 if(!require(dslabs)) install.packages('dslabs')
@@ -57,11 +64,32 @@ usgapminder <- gapminder %>%
   filter(year %in% c(1970:2017) & country == 'United States') %>% 
   dplyr::select('year', 'life_expectancy', 'population', 'gdp')
 
+covariates2 <- full_join(covariates, usgapminder, by = 'year')
 
+#View(covariates2)
+```
+
+Now, we may combine the separate datasets. For purposes of linear regression, we want one form of the table in which every row represents a year. For purposes of visualization in the Shiny app, we want a second data frame in which every row represents a specific year-variable pairing.
+
+```{r}
+#First, we will join all tables on year
+dat_annual <- full_join(fruitveg, covariates2, by = 'year')
+
+head(dat_annual)
+#dat_by_var 
 ```
 
 
-Now, we may combine the separate datasets. 
+First, considering we wish to run a linear regression to predict produce availability, it would be helpful to check for potential correlation between all variables. In this way, we may avoid including multicollinear covariates.
+
+```{r}
+if(!require(corrplot)) install.packages('corrplot')
+library(corrplot)
+annualcor <-cor(dat_annual, use = 'pairwise.complete.obs')
+corrplot(annualcor)
+```
+
+Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy, population, and GDP have strong pairwise correlations with one another. We may want to consider a model which does not use all of these features, so as to keep our estimates more precise.
 
 
 
@@ -77,31 +105,44 @@ library(shinythemes)
 
 ```
 
+Now we must get the emojis ready...
+```{r}
+devtools::install_github("dill/emoGG")
+library(emoGG)
+fruitlist = c('bananas', 'peaches')
+```
+
 
 Here is a sample app:
-```{r}
+```{r, eval = FALSE}
 # Define UI
 ui <- fluidPage( 
   theme = shinythemes::shinytheme("darkly"),
   titlePanel("US Per Capita Produce Availability"),
+  
   tabsetPanel(
+    
+    
     tabPanel('Specific Products Time Series',
-      selectInput("country", label = "Select a comparison country",
-                             choices = as.list(levels(gapminder$country))),
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("product", label = "Select a product",
+                             choices = fruitlist)),
       mainPanel(plotOutput('linePlot'))
-               ),
-    tabPanel('Covariate Associations',
-             sliderInput('year', label = 'Select a year',
-                         min = 1960, max = 2016, value = 1960,
-                         step = 1, sep = '', ticks = FALSE),
-             
-             checkboxGroupInput('continents', label = "Select continents to plot", choices = unique(gapminder$continent), selected = unique(gapminder$continent)
+               )),
+    
+    
+    
+    tabPanel('Variable Associations',
+      sidebarLayout(
+        sidebarPanel(
+          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = colnames(dat_annual)[2:15], selected = 'diabetes_percent'
                            ),
+             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = colnames(dat_annual)[2:15], selected = 'total_fruit_veg'
+                           )),
              
-      plotOutput("scatterPlot",
-        click = "scatterPlot_click"),
-      dataTableOutput("click_info")
-    )
+      mainPanel(plotOutput("scatterPlot"))
+    ))
   )
   )
 
@@ -113,30 +154,18 @@ server <- function(input, output) {
     gap_year <- reactive(gapminder %>% filter(year == input$year))
     
   output$linePlot = renderPlot({
-    gapminder %>% filter(country == 'United States' | country == input$country) %>% 
-      ggplot(aes(x = year, y = life_expectancy, color = country)) + 
-      geom_line() + ggtitle('Life Expectancy over Time') + xlab('Year') +
-      ylab('Average life expectancy (in years)') + 
-	    scale_y_continuous(breaks = seq(10, 85, 5), limits = c(10, 85))
-  })
-  output$scatterPlot = renderPlot({
-    gap_year() %>% filter(continent %in% input$continents) %>% ggplot(aes(x = fertility, y = life_expectancy, color = continent)) + geom_point() + ggtitle(paste0('Life Expectancy by Fertility Rate in ', input$year)) + xlab('Fertility Rate') + ylab("Life Expectancy") +
-      scale_y_continuous(breaks = seq(10, 85, 5), limits = c(10, 85)) +
-      scale_x_continuous(breaks = seq(0, 10), limits = c(0, 10))
+    bananas %>% 
+      ggplot(aes(x = year, y = total)) + 
+      geom_emoji(emoji="1f34c", size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle('Banans!') + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
   })
   
-  output$click_info <- renderDataTable({
-    # Because it's a ggplot2, we don't need to supply xvar or yvar; if this
-    # were a base graphics plot, we'd need those.
-    #Nothing seems to show up without the Cairo package 
-    nearPoints(df = gap_year(), coordinfo = input$scatterPlot_click, xvar = 'fertility', yvar = 'life_expectancy',  addDist = TRUE, maxpoints = 5)
-    
-    #So the below works
-    #gap_year()$fertility[0:5]
-    
-    #What's not clicking
-    #input$scatterPlot_click
+  output$scatterPlot = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(input$yvari, ' by ', input$xvari)) + xlab(input$xvari) + ylab(input$yvari)  + geom_smooth()
   })
+  
+  
 
 }
 
