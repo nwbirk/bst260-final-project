@@ -189,12 +189,12 @@ dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) +
 
 So why does this not work??
 ```{r}
-froot <- '1f34c'
+#froot <- '1f34c'
 
-dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = froot)
+#dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = froot)
 ```
 
-Here is a sample app:
+Here is a sample app: NOTE THIS IS THE ONE THAT HAS NO EMOJIS :(
 ```{r, eval = FALSE}
 # Define UI
 ui <- fluidPage( 
@@ -254,6 +254,7 @@ shinyApp(ui = ui, server = server)
 
 The above app experiences errors due to the geom_emoji() function being picky! This less elegant solution does the trick, however.
 
+APP WITH EMOJIS :)
 ```{r, eval = FALSE}
 # Define UI
 ui <- fluidPage( 
