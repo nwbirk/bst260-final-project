@@ -54,7 +54,7 @@ Now, we can read in the data for potential covariates. Sources include the gapmi
 covariates <- read.csv('outcomes.csv')
 ```
 
-Note that farm income is in terms of 2019 dollars (ie adjusted for inflation).
+Note that farm income is in terms of 2019 dollars (i.e. adjusted for inflation).
 
 ```{r}
 if(!require(dslabs)) install.packages('dslabs')
@@ -159,7 +159,43 @@ corrplot(annualcor)
 
 Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy, population, and GDP have strong pairwise correlations with one another. We may want to consider a model which does not use all of these features, so as to keep our estimates more precise.
 
+Further, we may use the included Shiny app to assess each pairwise correlation visually, as well as seeing the trend of each variable over time.
 
+We will build and compare a few linear models.
+
+Because of the temporality of the data, we want to be sure to include year as a predictor in all models. We will see how the regression model performs using year as the only predictor of total fruit and vegetable availability.
+
+```{r}
+lm.0 <- lm(total_fruit_veg ~ year, data = dat_annual)
+
+summary(lm.0)
+```
+
+The model output shows that year is a statistically significant predictor of total fruit and vegetable availability. For each year, per capita total avaialbility increased on average by 1.9246 pounds. Let us now consider how the model performs when we adjust for each potential covariate from the dataset.
+
+```{r}
+lm.1 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment + healthcare_percgdp + life_expectancy + population + gdp, data = dat_annual)
+
+summary(lm.1)
+```
+
+We find that the model explains roughly 90% of the variability in total per capita fruit and vegetable availbility, as denoted by the adjusted R-squared value. This is quite impressive! However, as discussed above, many of the predictors were correlated with each other. Let us use a model which keeps only 2 of these correlated variables, diabetes prevalence and GDP.
+
+```{r}
+lm.2 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment + gdp, data = dat_annual)
+
+summary(lm.2)
+```
+
+Interestingly, the adjusted R-squared has only decreased slightly, changing from 0.9011 to 0.8767. Further, diabetes prevalence is now the only statistically significant predictor in the model. Let us now observe how the model performance changes if we remove GDP, leaving no predictors which are correlated with each other.
+
+```{r}
+lm.2 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment, data = dat_annual)
+
+summary(lm.2)
+```
+
+The adjusted R-squared has reduced even further to 0.8307, but all predictors aside from unemployment rate are now statistically significant. These results are quite interesting. In selecting the most appropriate model, we must decide which covariates necessarily must be adjusted for, even if they are correlated with each other. We must also remember that the sample size is quite small, so it will be important to investigate how these trends may or may not hold for larger datasets, such as ones which include data from other countries.
 
 We will build a shiny app to allow customized visualizations as follows:
 
@@ -168,33 +204,46 @@ if(!require(shiny)) install.packages('shiny')
 library(shiny)
 if(!require(shinythemes)) install.packages('shinythemes')
 library(shinythemes)
-
-
-
 ```
 
 Now we must get the emojis ready...
 ```{r}
 devtools::install_github("dill/emoGG")
 library(emoGG)
-fruitlist = c('bananas', 'peaches')
 ```
 
 Got to do an experiment! How to change emojis :)
-```{r}
+```{r, eval = FALSE}
 froot <- '1f34c'
 
 dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = '1f348')
 ```
 
-So why does this not work??
+We will now create a dataframe with cleaner variable names for use in the Shiny app.
+
 ```{r}
-#froot <- '1f34c'
+var_names <- c('Total Fresh Fruit Availability (lbs)' = 'fruit_fresh',
+               'Total Processed Fruit Availability (lbs)' = 'fruit_processed',
+               'Total Fresh Vegetable Availability (lbs)' = 'veg_fresh',
+               'Total Processed Vegetable Availability (lbs)' = 'veg_processed',
+               'Total Fruit Availability (lbs)' = 'total_fruit',
+               'Total Vegetable Availability (lbs)' = 'total_veg',
+               'Total Fruit and Vegetable Availability (lbs)' = 'total_fruit_veg',
+               'Diabetes Prevalence (%)' = 'diabetes_percent',
+               'Average Annual Farm Income ($)' = 'farm_income',
+               'Annual Unemployment Rate (%)' = 'unemployment',
+               'Percent GDP Spending on Healthcare' = 'healthcare_percgdp',
+               'Average Life Expectancy (yrs)' = 'life_expectancy',
+               'Population' = 'population',
+               'GDP' = 'gdp')
 
-#dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = froot)
+var_names
+
+names(var_names[which(var_names == 'life_expectancy')])
 ```
 
-Here is a sample app: NOTE THIS IS THE ONE THAT HAS NO EMOJIS :(
+And now, APP WITH EMOJIS :)
+
 ```{r, eval = FALSE}
 # Define UI
 ui <- fluidPage( 
@@ -215,74 +264,21 @@ ui <- fluidPage(
     
     
     tabPanel('Variable Associations',
-      sidebarLayout(
-        sidebarPanel(
-          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = colnames(dat_annual)[2:15], selected = 'diabetes_percent'
+      fluidRow(
+        column(4,
+          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = var_names, selected = 'diabetes_percent'
                            ),
-             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = colnames(dat_annual)[2:15], selected = 'total_fruit_veg'
+             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = var_names, selected = 'total_fruit_veg'
                            )),
              
-      mainPanel(plotOutput("scatterPlot"))
-    ))
-  )
-  )
-
-
-
-# Define server
-server <- function(input, output) {
-    
-  output$linePlot = renderPlot({
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      #geom_emoji(emoji = as.character(dat_series$emoji_code[1]), size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  })
-  
-  output$scatterPlot = renderPlot({
-    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(input$yvari, ' by ', input$xvari)) + xlab(input$xvari) + ylab(input$yvari)  + geom_smooth()
-  })
-  
-  
-
-}
-
-shinyApp(ui = ui, server = server)
-```
-
-The above app experiences errors due to the geom_emoji() function being picky! This less elegant solution does the trick, however.
-
-APP WITH EMOJIS :)
-```{r, eval = FALSE}
-# Define UI
-ui <- fluidPage( 
-  theme = shinythemes::shinytheme("darkly"),
-  titlePanel("US Per Capita Produce Availability"),
-  
-  tabsetPanel(
-    
-    
-    tabPanel('Specific Products Time Series',
-      sidebarLayout(
-        sidebarPanel(
-          selectInput("product", label = "Select a product",
-                             choices = sort(unique(dat_series$fruit)))),
-      mainPanel(plotOutput('linePlot'))
-               )),
-    
-    
-    
-    tabPanel('Variable Associations',
-      sidebarLayout(
-        sidebarPanel(
-          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = colnames(dat_annual)[2:15], selected = 'diabetes_percent'
-                           ),
-             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = colnames(dat_annual)[2:15], selected = 'total_fruit_veg'
-                           )),
-             
-      mainPanel(plotOutput("scatterPlot"))
+      column(8, plotOutput("scatterPlot"))
+    ),
+    fluidRow(
+      column(12, htmlOutput('texty'))
+    ),
+    fluidRow(
+      column(6, plotOutput('scatterx')),
+      column(6, plotOutput('scattery'))
     ))
   )
   )
@@ -476,39 +472,28 @@ server <- function(input, output) {
     
    
   })
-  output$scatterPlot = renderPlot({
-    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(input$yvari, ' by ', input$xvari)) + xlab(input$xvari) + ylab(input$yvari)  + geom_smooth()
+  
+  output$texty <- renderUI({
+    HTML('Trends for each variable over time are included below:')
   })
   
+  output$scatterPlot = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by ', names(var_names[which(var_names == input$xvari)]))) + xlab(names(var_names[which(var_names == input$xvari)])) + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
+  })
+  
+  output$scatterx = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = 'year', y = input$xvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$xvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$xvari)]))  + geom_smooth()
+  })
+  
+  output$scattery = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = 'year', y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
+  })
   
 
 }
 
 shinyApp(ui = ui, server = server)
 ```
-
-Heres the list btw
-dat_series$emoji_code[dat_series$fruit == 'bananas'] <- '1f34c'
-dat_series$emoji_code[dat_series$fruit == 'peaches'] <- '1f351'
-dat_series$emoji_code[dat_series$fruit == 'apples'] <- '1f34e'
-dat_series$emoji_code[dat_series$fruit == 'avocados'] <- '1f951'
-dat_series$emoji_code[dat_series$fruit == 'bellpeppers'] <- '1f336'
-dat_series$emoji_code[dat_series$fruit == 'broccoli'] <- '1f966'
-dat_series$emoji_code[dat_series$fruit == 'cabbage'] <-'1f957'
-dat_series$emoji_code[dat_series$fruit == 'carrots'] <-'1f955'
-dat_series$emoji_code[dat_series$fruit == 'eggplant'] <-'1f346'
-dat_series$emoji_code[dat_series$fruit == 'grapes'] <-'1f347'
-dat_series$emoji_code[dat_series$fruit == 'lemons'] <-'1f34b'
-dat_series$emoji_code[dat_series$fruit == 'mushrooms'] <-'1f344'
-dat_series$emoji_code[dat_series$fruit == 'onions'] <-'1f348'
-dat_series$emoji_code[dat_series$fruit == 'oranges'] <-'1f34a'
-dat_series$emoji_code[dat_series$fruit == 'pears'] <-'1f350'
-dat_series$emoji_code[dat_series$fruit == 'pineapples'] <-'1f34d'
-dat_series$emoji_code[dat_series$fruit == 'potatoes'] <-'1f954'
-dat_series$emoji_code[dat_series$fruit == 'spinach'] <-'1f343'
-dat_series$emoji_code[dat_series$fruit == 'tomatoes'] <-'1f345'
-dat_series$emoji_code[dat_series$fruit == 'watermelon'] <-'1f349'
-
 
 
 
