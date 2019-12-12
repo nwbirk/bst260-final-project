@@ -415,7 +415,7 @@ potatoes &lt;- read.csv('potatoes.csv')
 spinach &lt;- read.csv('spinach.csv')
 tomatoes &lt;- read.csv('tomatoes.csv')
 watermelon &lt;- read.csv('watermelon.csv')</code></pre>
-<p>Now, we can read in the data for potential covariates. Sources include the gapminder dataset, USDA, CDC, US Bureau of Labor Statistics, and Centers for Medicare &amp; Medicaid Services. Note that diabetes prevlance data is not available for all years.</p>
+<p>Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Department of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).</p>
 <pre class="r"><code>covariates &lt;- read.csv('outcomes.csv')</code></pre>
 <p>Note that farm income is in terms of 2019 dollars (i.e. adjusted for inflation).</p>
 <pre class="r"><code>if(!require(dslabs)) install.packages('dslabs')</code></pre>
@@ -496,7 +496,9 @@ dat_series &lt;- inner_join(dat_series, watermelon, by = 'year')
 colnames(dat_series)[21] &lt;- 'watermelon'
 
 
-#UPDATE THIS WHENEVER YOU ADD SOMETHING
+#Now we will include the emoji codes for each specific item 
+#This will come into play later!
+
 dat_series &lt;- gather(dat_series, fruit, value, bananas:watermelon)
 
 dat_series$emoji_code &lt;- ''
@@ -546,7 +548,7 @@ cormat[8,]</code></pre>
 ##          0.6362412          0.6116886          0.7446816</code></pre>
 <p>Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy, population, and GDP have strong pairwise correlations with one another. We may want to consider a model which does not use all of these features, so as to keep our estimates more precise. Surprisingly, we find that farm income has the weakest linear correlation with total fruit and vegetable availability.</p>
 <p>Further, we may use the included Shiny app to assess each pairwise correlation visually, as well as seeing the trend of each variable over time.</p>
-<p>Before we begin, we will plot the trend of total availability over time.</p>
+<p>Before we begin, we will also plot the trend of total availability over time.</p>
 <pre class="r"><code>dat_annual %&gt;% ggplot(aes(x = year, y = total_fruit_veg)) + geom_point() +
   geom_smooth() + xlab('Year') + ylab('Annual per capita fruit &amp; vegetable availability (lbs)') + ggtitle('Total fruit and vegetable availability over time')</code></pre>
 <pre><code>## `geom_smooth()` using method = 'loess' and formula 'y ~ x'</code></pre>
@@ -1041,7 +1043,7 @@ shinyApp(ui = ui, server = server)</code></pre>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>Through this study, I was able to fit a linear model to predict total annual fruit and vegetable per capita availability with an adjusted R-squared of 0.916. However, it is important to note that we only have data for 48 years. This sample is quite small, especially for the number of covariates we included in our model. We may also want to consider the complicated temporality of these assocations. For example, is it the case that farm income can be used as a predictor of availability, or should availability be used to predict farm income? Further research may focus on how the model performs on data from other countries, if available, or can be tested on data from later years once this information becomes available.</p>
+<p>Through this study, I was able to fit a linear model to predict total annual fruit and vegetable per capita availability with an adjusted R-squared of 0.916. However, it is important to note that we only have availability data for 47 years. This sample is quite small, especially for the number of covariates we included in our model. We may also want to consider the complicated temporality of these assocations. For example, is it the case that farm income can be used as a predictor of availability, or should availability be used to predict farm income? Further research may focus on how the model performs on data from other countries, if available, or can be tested on data from later years once this information becomes available.</p>
 <p>The interactive data visualization app helps us to uncover some interesting trends. While total fruit and vegetable consumption follows a roughly quadratic trend over the years, individual fruits and vegetables seem to follow very unique trends of their own. The avocado, for example, has exponentially increased in availability over the last couple of decades, while peaches and pears have steadily been decreasing over time. Using this tool, we can develop further questions about the market and environmental forces that may be causing these trends. In regards to the pairwise correlations tool, the most surprising discovery is the weakness of the relationship between annual farm income and food availability. One possible explanation for this matter is the amount of variability between farms. Perhaps the growth in average farm income over time is driven by farmers who focus on certain crop types. This could especially influence the trend based on the weight of their crop since availability is measured in pounds. In all, this interactive tool can be used to investigate trends in the data and inform future investigations into agricultural and consumption trends.</p>
 </div>
 

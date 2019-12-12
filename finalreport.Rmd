@@ -50,7 +50,7 @@ tomatoes <- read.csv('tomatoes.csv')
 watermelon <- read.csv('watermelon.csv')
 ```
 
-Now, we can read in the data for potential covariates. Sources include the gapminder dataset, USDA, CDC, US Bureau of Labor Statistics, and Centers for Medicare & Medicaid Services. Note that diabetes prevlance data is not available for all years.
+Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Department of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).
 
 ```{r}
 covariates <- read.csv('outcomes.csv')
@@ -122,7 +122,9 @@ dat_series <- inner_join(dat_series, watermelon, by = 'year')
 colnames(dat_series)[21] <- 'watermelon'
 
 
-#UPDATE THIS WHENEVER YOU ADD SOMETHING
+#Now we will include the emoji codes for each specific item 
+#This will come into play later!
+
 dat_series <- gather(dat_series, fruit, value, bananas:watermelon)
 
 dat_series$emoji_code <- ''
@@ -169,7 +171,7 @@ Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy,
 
 Further, we may use the included Shiny app to assess each pairwise correlation visually, as well as seeing the trend of each variable over time.
 
-Before we begin, we will plot the trend of total availability over time.
+Before we begin, we will also plot the trend of total availability over time.
 
 ```{r}
 dat_annual %>% ggplot(aes(x = year, y = total_fruit_veg)) + geom_point() +
@@ -554,7 +556,7 @@ shinyApp(ui = ui, server = server)
 
 # Conclusion
 
-Through this study, I was able to fit a linear model to predict total annual fruit and vegetable per capita availability with an adjusted R-squared of 0.916. However, it is important to note that we only have data for 48 years. This sample is quite small, especially for the number of covariates we included in our model. We may also want to consider the complicated temporality of these assocations. For example, is it the case that farm income can be used as a predictor of availability, or should availability be used to predict farm income? Further research may focus on how the model performs on data from other countries, if available, or can be tested on data from later years once this information becomes available.
+Through this study, I was able to fit a linear model to predict total annual fruit and vegetable per capita availability with an adjusted R-squared of 0.916. However, it is important to note that we only have availability data for 47 years. This sample is quite small, especially for the number of covariates we included in our model. We may also want to consider the complicated temporality of these assocations. For example, is it the case that farm income can be used as a predictor of availability, or should availability be used to predict farm income? Further research may focus on how the model performs on data from other countries, if available, or can be tested on data from later years once this information becomes available.
 
 The interactive data visualization app helps us to uncover some interesting trends. While total fruit and vegetable consumption follows a roughly quadratic trend over the years, individual fruits and vegetables seem to follow very unique trends of their own. The avocado, for example, has exponentially  increased in availability over the last couple of decades, while peaches and pears have steadily been decreasing over time. Using this tool, we can develop further questions about the market and environmental forces that may be causing these trends. In regards to the pairwise correlations tool, the most surprising discovery is the weakness of the relationship between annual farm income and food availability. One possible explanation for this matter is the amount of variability between farms. Perhaps the growth in average farm income over time is driven by farmers who focus on certain crop types. This could especially influence the trend based on the weight of their crop since availability is measured in pounds. In all, this interactive tool can be used to investigate trends in the data and inform future investigations into agricultural and consumption trends.
 
