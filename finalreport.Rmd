@@ -17,7 +17,7 @@ One of the main priorities for this project is to create an interactive way to o
 
 # Data Assembly
 
-We will begin by reading in the annual availability data, courtesty of the US Department of Agriculture. These data are given in the form of annual availabile pounds per capita for specific fruits and vegetables (10 of each are included here), and overall annual availability of fruits and vegetables per capita from 1970 to 2016.
+We will begin by reading in the annual availability data, courtesy of the US Department of Agriculture. These data are given in the form of annual availabile pounds per capita for specific fruits and vegetables (10 of each are included here), and overall annual availability of fruits and vegetables per capita from 1970 to 2016.
 
 ```{r}
 if(!require(tidyverse)) install.packages('tidyverse')
@@ -149,6 +149,7 @@ dat_series$emoji_code[dat_series$fruit == 'tomatoes'] <-'1f345'
 dat_series$emoji_code[dat_series$fruit == 'watermelon'] <-'1f349'
 ```
 
+# Linear Regression Analysis
 
 First, considering we wish to run a linear regression to predict produce availability, it would be helpful to check for potential correlation between all variables. In this way, we may avoid including multicollinear covariates.
 
@@ -159,13 +160,23 @@ annualcor <-cor(dat_annual, use = 'pairwise.complete.obs')
 corrplot(annualcor)
 ```
 
-Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy, population, and GDP have strong pairwise correlations with one another. We may want to consider a model which does not use all of these features, so as to keep our estimates more precise.
+```{r}
+cormat <- cor(dat_annual, use = 'pairwise.complete.obs')
+cormat[8,]
+```
+
+Indeed, it seems that diabetes prevalence, healthcare spending, life expectancy, population, and GDP have strong pairwise correlations with one another. We may want to consider a model which does not use all of these features, so as to keep our estimates more precise. Surprisingly, we find that farm income has the weakest linear correlation with total fruit and vegetable availability.
 
 Further, we may use the included Shiny app to assess each pairwise correlation visually, as well as seeing the trend of each variable over time.
 
-We will build and compare a few linear models.
+Before we begin, we will plot the trend of total availability over time.
 
-Because of the temporality of the data, we want to be sure to include year as a predictor in all models. We will see how the regression model performs using year as the only predictor of total fruit and vegetable availability.
+```{r}
+dat_annual %>% ggplot(aes(x = year, y = total_fruit_veg)) + geom_point() +
+  geom_smooth() + xlab('Year') + ylab('Annual per capita fruit & vegetable availability (lbs)') + ggtitle('Total fruit and vegetable availability over time')
+```
+
+It is important to note that this trend appears quadratic rather than linear. We will build a baseline simple linear regression model using only a year term, then extend to improve the fit of the model to our data.
 
 ```{r}
 lm.0 <- lm(total_fruit_veg ~ year, data = dat_annual)
@@ -173,34 +184,49 @@ lm.0 <- lm(total_fruit_veg ~ year, data = dat_annual)
 summary(lm.0)
 ```
 
-The model output shows that year is a statistically significant predictor of total fruit and vegetable availability. For each year, per capita total avaialbility increased on average by 1.9246 pounds. Let us now consider how the model performs when we adjust for each potential covariate from the dataset.
+The model output shows that year is a statistically significant predictor of total fruit and vegetable availability. For each year, per capita total avaialbility increased on average by 1.9246 pounds. However, when we observe the plot of availability over time, the trend appears to be nonlinear. Thus, the linear term alone may not be fully appropriate. Let us consider how the model changes when we add a quadratic term.
 
 ```{r}
-lm.1 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment + healthcare_percgdp + life_expectancy + population + gdp, data = dat_annual)
+dat_annual$yearsq <- dat_annual$year^2
+
+lm.0sq <- lm(total_fruit_veg ~ year + yearsq, data = dat_annual)
+
+summary(lm.0sq)
+```
+
+By simply adding the age squared term, we find that the adjusted R-squared increases from 0.359 to 0.793. Further, both of the coefficients for year and year squared are statistically significant. We should likely keep the year squared term in our model going forward since this appears to be the most appropriate way to model the effect of time.
+
+Let us now consider how the model performs when we adjust for each potential covariate from the dataset.
+
+```{r}
+lm.1 <- lm(total_fruit_veg ~ year + yearsq + diabetes_percent + farm_income + unemployment + healthcare_percgdp + life_expectancy + population + gdp, data = dat_annual)
 
 summary(lm.1)
 ```
 
-We find that the model explains roughly 90% of the variability in total per capita fruit and vegetable availbility, as denoted by the adjusted R-squared value. This is quite impressive! However, as discussed above, many of the predictors were correlated with each other. Let us use a model which keeps only 2 of these correlated variables, diabetes prevalence and GDP.
+We find that the model explains roughly 92% of the variability in total per capita fruit and vegetable availbility, as denoted by the adjusted R-squared value. This is quite impressive! However, as discussed above, many of the predictors were correlated with each other. Let us use a model which keeps only 2 of these correlated variables, diabetes prevalence and population, as they had the lowest p-values.
 
 ```{r}
-lm.2 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment + gdp, data = dat_annual)
+lm.2 <- lm(total_fruit_veg ~ year + yearsq + diabetes_percent + farm_income + unemployment + population, data = dat_annual)
 
 summary(lm.2)
 ```
 
-Interestingly, the adjusted R-squared has only decreased slightly, changing from 0.9011 to 0.8767. Further, diabetes prevalence is now the only statistically significant predictor in the model. Let us now observe how the model performance changes if we remove GDP, leaving no predictors which are correlated with each other.
+Interestingly, the adjusted R-squared has only decreased slightly, changing from 0.916 to 0.914. Let us now observe how the model performance changes if we remove population, leaving no predictors which are correlated with each other.
 
 ```{r}
-lm.2 <- lm(total_fruit_veg ~ year + diabetes_percent + farm_income + unemployment, data = dat_annual)
+lm.2 <- lm(total_fruit_veg ~ year + yearsq + diabetes_percent + farm_income + unemployment, data = dat_annual)
 
 summary(lm.2)
 ```
 
-The adjusted R-squared has reduced even further to 0.8307, but all predictors aside from unemployment rate are now statistically significant. These results are quite interesting. In selecting the most appropriate model, we must decide which covariates necessarily must be adjusted for, even if they are correlated with each other. We must also remember that the sample size is quite small, so it will be important to investigate how these trends may or may not hold for larger datasets, such as ones which include data from other countries.
+The adjusted R-squared has reduced even further to 0.8552. In selecting the most appropriate model, we must decide which covariates are necessary to adjust for, even if they are correlated with each other. We must also remember that the sample size is quite small, so it will be important to investigate how these trends may or may not hold for larger datasets, such as ones which include data from other countries. The high adjusted R-squared in the full model may simply be a case of overfitting.
+
+# Interactive Data Visualization
 
 We will build a shiny app to allow customized visualizations as follows:
 
+We begin by installing the necessary packages for shiny.
 ```{r}
 if(!require(shiny)) install.packages('shiny')
 library(shiny)
@@ -208,22 +234,17 @@ if(!require(shinythemes)) install.packages('shinythemes')
 library(shinythemes)
 ```
 
-Now we must get the emojis ready...
+As a special feature, we will install a package that allows us to plot emojis.
 ```{r}
 devtools::install_github("dill/emoGG")
 library(emoGG)
 ```
 
-Got to do an experiment! How to change emojis :)
+As a sample, we will plot the availability of bananas over time.
 ```{r, eval = FALSE}
 froot <- '1f34c'
 
-dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = '1f348')
-```
-
-```{r}
-cormat <- cor(dat_annual, use = 'pairwise.complete.obs')
-cormat[8,]
+dat_series %>% filter(fruit == 'bananas') %>% ggplot(aes(x = year, y = value)) + geom_emoji(emoji = '1f34c') + xlab('Year') + ylab('Banana availability (lbs)') + ggtitle('Banana availability over time')
 ```
 
 We will now create a dataframe with cleaner variable names for use in the Shiny app.
@@ -277,8 +298,7 @@ names(veg_names[which(veg_names == 'bellpeppers')])
 ```
 
 
-
-
+Now, the app is ready for use!
 
 ```{r, eval = FALSE}
 # Define UI
@@ -532,267 +552,9 @@ shinyApp(ui = ui, server = server)
 ```
 
 
+# Conclusion
 
+Through this study, I was able to fit a linear model to predict total annual fruit and vegetable per capita availability with an adjusted R-squared of 0.916. However, it is important to note that we only have data for 48 years. This sample is quite small, especially for the number of covariates we included in our model. We may also want to consider the complicated temporality of these assocations. For example, is it the case that farm income can be used as a predictor of availability, or should availability be used to predict farm income? Further research may focus on how the model performs on data from other countries, if available, or can be tested on data from later years once this information becomes available.
 
-
-
-
-
-
-
-And now, APP WITH EMOJIS :)
-
-```{r, eval = FALSE}
-# Define UI
-ui <- fluidPage( 
-  theme = shinythemes::shinytheme("darkly"),
-  titlePanel("US Per Capita Produce Availability"),
-  
-  tabsetPanel(
-    
-    
-    tabPanel('Specific Products Time Series',
-      sidebarLayout(
-        sidebarPanel(
-          selectInput("product", label = "Select a product",
-                             choices = sort(unique(dat_series$fruit)))),
-      mainPanel(plotOutput('linePlot'))
-               )),
-    
-    
-    
-    tabPanel('Variable Associations',
-      fluidRow(
-        column(4,
-          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = var_names, selected = 'diabetes_percent'
-                           ),
-             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = var_names, selected = 'total_fruit_veg'
-                           )),
-             
-      column(8, plotOutput("scatterPlot"))
-    ),
-    fluidRow(
-      column(12, htmlOutput('texty'))
-    ),
-    fluidRow(
-      column(6, plotOutput('scatterx')),
-      column(6, plotOutput('scattery'))
-    ))
-  )
-  )
-
-
-
-# Define server
-server <- function(input, output) {
-     
-  output$linePlot = renderPlot({
-    if (input$product == 'bananas'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f34c', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-    }
-    
-  else if (input$product == 'peaches'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f351', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }
-    
-  else if (input$product == 'apples'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f34e', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }  
-    
-    else if (input$product == 'avocados'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f951', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-    }  
-    
-     else if (input$product == 'bellpeppers'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f336', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }  
-    
-    else if (input$product == 'broccoli'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f966', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }  
-    
-     else if (input$product == 'cabbage'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f957', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-     }  
-    
-     else if (input$product == 'carrots'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f955', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }  
-    
-    else if (input$product == 'eggplant'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f346', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-    }  
-    
-    else if (input$product == 'grapes'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f347', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-    }  
-    
-     else if (input$product == 'lemons'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f34b', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-     }  
-    
-        else if (input$product == 'mushrooms'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f344', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-        }  
-    
-        else if (input$product == 'onions'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f348', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-        }  
-    
-        else if (input$product == 'oranges'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f34a', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-        }  
-    
-       else if (input$product == 'pears'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f350', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-       }  
-    
-        else if (input$product == 'pineapples'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f34d', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-        }  
-    
-     else if (input$product == 'potatoes'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f954', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-     }  
-    
-         else if (input$product == 'spinach'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f343', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-         }  
-    
-             else if (input$product == 'tomatoes'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f345', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(input$product, ' availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-             }  
-    
-                 else if (input$product == 'watermelon'){
-    dat_series %>% 
-      filter(fruit == input$product) %>%
-      ggplot(aes(x = year, y = value)) + 
-      geom_emoji(emoji = '1f349', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0('Watermelon availbility over time')) + xlab('Year') +
-      ylab('Per capita availability (lbs)') 
-  }  
-    
-    
-   
-  })
-  
-  output$texty <- renderUI({
-    HTML('Trends for each variable over time are included below:')
-  })
-  
-  output$scatterPlot = renderPlot({
-    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by ', names(var_names[which(var_names == input$xvari)]))) + xlab(names(var_names[which(var_names == input$xvari)])) + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
-  })
-  
-  output$scatterx = renderPlot({
-    dat_annual %>% ggplot(aes_string(x = 'year', y = input$xvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$xvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$xvari)]))  + geom_smooth()
-  })
-  
-  output$scattery = renderPlot({
-    dat_annual %>% ggplot(aes_string(x = 'year', y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
-  })
-  
-
-}
-
-shinyApp(ui = ui, server = server)
-```
-
-
-
+The interactive data visualization app helps us to uncover some interesting trends. While total fruit and vegetable consumption follows a roughly quadratic trend over the years, individual fruits and vegetables seem to follow very unique trends of their own. The avocado, for example, has exponentially  increased in availability over the last couple of decades, while peaches and pears have steadily been decreasing over time. Using this tool, we can develop further questions about the market and environmental forces that may be causing these trends. In regards to the pairwise correlations tool, the most surprising discovery is the weakness of the relationship between annual farm income and food availability. One possible explanation for this matter is the amount of variability between farms. Perhaps the growth in average farm income over time is driven by farmers who focus on certain crop types. This could especially influence the trend based on the weight of their crop since availability is measured in pounds. In all, this interactive tool can be used to investigate trends in the data and inform future investigations into agricultural and consumption trends.
 
