@@ -1,3 +1,5 @@
+# Fruit and Vegetable Availability
+
 ## Introduction
 
 Food security is a major public health concern. In order for people to live their healthiest lives, they must be able to access fresh produce. During my undergraduate studies, I worked part-time as a gardener and at a farmer’s market for two years, so food systems are of personal interest to me. During my time working these jobs, I learned about the way in which outside factors can largely influence an individual’s ability to access foods which are considered healthy. My hope is to observe what factors can predict the availability of various fruits and vegetables. Through this investigation, we may gain an understanding of what external forces are associated with the stability of our food systems and the health-related decisions that individuals are able to make.
@@ -11,3 +13,8 @@ Data on per capita annual availability for fruits and vegetables is available th
 ### Exploratory Data Analysis
 
 To begin, I wanted to observe how the total availability varies over time.
+
+
+
+<iframe src="https://nwbirk.shinyapps.io/bst260-final-project/" width="100%" height="400px"></iframe>
+
