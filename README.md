@@ -16,6 +16,8 @@ To begin, I wanted to observe how the total availability varies over time.
 
 ![Time Plot](https://github.com/nwbirk/bst260-final-project/blob/master/timeplot.png)
 
+<img src="timeplot.png" class="img-responsive" alt=""> </div>
+
 From the plot, we can see that the trend is not linear. Thus, in fitting a regression model, we may want to include a transformed version of the year variable, such as a quadratic term. In controlling for a set of potential covariates, we obtain the following model output:
 
 ![Model](https://github.com/nwbirk/bst260-final-project/blob/master/modeloutput.png)
