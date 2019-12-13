@@ -14,13 +14,11 @@ Data on per capita annual availability for fruits and vegetables is available th
 
 To begin, I wanted to observe how the total availability varies over time. 
 
-![Time Plot](https://github.com/nwbirk/bst260-final-project/blob/master/timeplot.png)
-
 <img src="timeplot.png" class="img-responsive" alt=""> </div>
 
 From the plot, we can see that the trend is not linear. Thus, in fitting a regression model, we may want to include a transformed version of the year variable, such as a quadratic term. In controlling for a set of potential covariates, we obtain the following model output:
 
-![Model](https://github.com/nwbirk/bst260-final-project/blob/master/modeloutput.png)
+<img src="modeloutput.png" class="img-responsive" alt=""> </div>
 
 We find that the model explains roughly 92% of the variability in total per capita fruit and vegetable availbility, as denoted by the adjusted R-squared value. This is quite impressive! However, many of the predictors were correlated with each other. In selecting the most appropriate model, we must decide which covariates are necessary to adjust for, even if they are correlated with each other. We must also remember that the sample size is quite small, so it will be important to investigate how these trends may or may not hold for larger datasets, such as ones which include data from other countries. The high adjusted R-squared in the full model may simply be a case of overfitting.
 
