@@ -16,5 +16,5 @@ To begin, I wanted to observe how the total availability varies over time.
 
 
 
-<iframe src="https://nwbirk.shinyapps.io/bst260-final-project/" width="100%" height="400px"></iframe>
+<iframe src="https://nwbirk.shinyapps.io/bst260-final-project/" width="100%" height="950px"></iframe>
 
