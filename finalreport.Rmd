@@ -3,7 +3,6 @@ title: "BST260 Final Report"
 author: "Nick Birk"
 date: "12/15/2019"
 output: html_document
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -305,260 +304,261 @@ Now, the app is ready for use!
 
 ```{r, echo = FALSE}
 # Define UI
-shinyApp(
+#shinyApp(
+
+ui <- fluidPage( 
+  theme = shinythemes::shinytheme("darkly"),
+  titlePanel("US Per Capita Produce Availability"),
   
-  ui <- fluidPage( 
-    theme = shinythemes::shinytheme("darkly"),
-    titlePanel("US Per Capita Produce Availability"),
+  tabsetPanel(
     
-    tabsetPanel(
-      
-      
-      tabPanel('Specific Products Time Series',
-        sidebarLayout(
-          sidebarPanel(
-            selectInput("product", label = "Select a product",
-                               choices = veg_names)),
-        mainPanel(plotOutput('linePlot'))
-                 )),
-      
-      
-      
-      tabPanel('Variable Associations',
-        fluidRow(
-          column(4,
-            selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = var_names, selected = 'diabetes_percent'
-                             ),
-               selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = var_names, selected = 'total_fruit_veg'
-                             )),
-               
-        column(8, plotOutput("scatterPlot"))
-      ),
+    
+    tabPanel('Specific Products Time Series',
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("product", label = "Select a product",
+                             choices = veg_names)),
+      mainPanel(plotOutput('linePlot'))
+               )),
+    
+    
+    
+    tabPanel('Variable Associations',
       fluidRow(
-        column(12, htmlOutput('texty'))
-      ),
-      fluidRow(
-        column(6, plotOutput('scatterx')),
-        column(6, plotOutput('scattery'))
-      ))
-    )
-    )
-  
-  
-  ,
-  # Define server
-  server <- function(input, output) {
-       
-    output$linePlot = renderPlot({
-      if (input$product == 'bananas'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f34c', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-      }
-      
-    else if (input$product == 'peaches'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f351', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }
-      
-    else if (input$product == 'apples'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f34e', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }  
-      
-      else if (input$product == 'avocados'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f951', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-      }  
-      
-       else if (input$product == 'bellpeppers'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f336', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }  
-      
-      else if (input$product == 'broccoli'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f966', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }  
-      
-       else if (input$product == 'cabbage'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f957', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-       }  
-      
-       else if (input$product == 'carrots'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f955', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }  
-      
-      else if (input$product == 'eggplant'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f346', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-      }  
-      
-      else if (input$product == 'grapes'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f347', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-      }  
-      
-       else if (input$product == 'lemons'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f34b', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-       }  
-      
-          else if (input$product == 'mushrooms'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f344', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-          }  
-      
-          else if (input$product == 'onions'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f348', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-          }  
-      
-          else if (input$product == 'oranges'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f34a', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-          }  
-      
-         else if (input$product == 'pears'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f350', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-         }  
-      
-          else if (input$product == 'pineapples'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f34d', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-          }  
-      
-       else if (input$product == 'potatoes'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f954', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-       }  
-      
-           else if (input$product == 'spinach'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f343', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-           }  
-      
-               else if (input$product == 'tomatoes'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f345', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-               }  
-      
-                   else if (input$product == 'watermelon'){
-      dat_series %>% 
-        filter(fruit == input$product) %>%
-        ggplot(aes(x = year, y = value)) + 
-        geom_emoji(emoji = '1f349', size = 0.04) + 
-        geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
-        ylab('Per capita availability (lbs)') 
-    }  
-      
-      
+        column(4,
+          selectInput('xvari', label = "Select a variable to plot on the x-axis", choices = var_names, selected = 'diabetes_percent'
+                           ),
+             selectInput('yvari', label = "Select a variable to plot on the y-axis", choices = var_names, selected = 'total_fruit_veg'
+                           )),
+             
+      column(8, plotOutput("scatterPlot"))
+    ),
+    fluidRow(
+      column(12, htmlOutput('texty'))
+    ),
+    fluidRow(
+      column(6, plotOutput('scatterx')),
+      column(6, plotOutput('scattery'))
+    ))
+  )
+  )
+
+
+#,
+# Define server
+server <- function(input, output) {
      
-    })
+  output$linePlot = renderPlot({
+    if (input$product == 'bananas'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34c', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }
     
-    output$texty <- renderUI({
-      HTML('Trends for each variable over time are included below:')
-    })
+  else if (input$product == 'peaches'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f351', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }
     
-    output$scatterPlot = renderPlot({
-      dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by ', names(var_names[which(var_names == input$xvari)]))) + xlab(names(var_names[which(var_names == input$xvari)])) + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
-    })
+  else if (input$product == 'apples'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34e', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
     
-    output$scatterx = renderPlot({
-      dat_annual %>% ggplot(aes_string(x = 'year', y = input$xvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$xvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$xvari)]))  + geom_smooth()
-    })
+    else if (input$product == 'avocados'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f951', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
     
-    output$scattery = renderPlot({
-      dat_annual %>% ggplot(aes_string(x = 'year', y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
-    })
+     else if (input$product == 'bellpeppers'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f336', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
     
+    else if (input$product == 'broccoli'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f966', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+     else if (input$product == 'cabbage'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f957', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+     else if (input$product == 'carrots'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f955', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    else if (input$product == 'eggplant'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f346', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
+    
+    else if (input$product == 'grapes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f347', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+    }  
+    
+     else if (input$product == 'lemons'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34b', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+        else if (input$product == 'mushrooms'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f344', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+        else if (input$product == 'onions'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f348', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+        else if (input$product == 'oranges'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34a', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+       else if (input$product == 'pears'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f350', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+       }  
+    
+        else if (input$product == 'pineapples'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f34d', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+        }  
+    
+     else if (input$product == 'potatoes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f954', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+     }  
+    
+         else if (input$product == 'spinach'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f343', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+         }  
+    
+             else if (input$product == 'tomatoes'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f345', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+             }  
+    
+                 else if (input$product == 'watermelon'){
+    dat_series %>% 
+      filter(fruit == input$product) %>%
+      ggplot(aes(x = year, y = value)) + 
+      geom_emoji(emoji = '1f349', size = 0.04) + 
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      ylab('Per capita availability (lbs)') 
+  }  
+    
+    
+   
+  })
   
-  },
-  options = list(height = 950)
+  output$texty <- renderUI({
+    HTML('Trends for each variable over time are included below:')
+  })
+  
+  output$scatterPlot = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = input$xvari, y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by ', names(var_names[which(var_names == input$xvari)]))) + xlab(names(var_names[which(var_names == input$xvari)])) + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
+  })
+  
+  output$scatterx = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = 'year', y = input$xvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$xvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$xvari)]))  + geom_smooth()
+  })
+  
+  output$scattery = renderPlot({
+    dat_annual %>% ggplot(aes_string(x = 'year', y = input$yvari)) + geom_point() + ggtitle(paste0(names(var_names[which(var_names == input$yvari)]), ' by year')) + xlab('Year') + ylab(names(var_names[which(var_names == input$yvari)]))  + geom_smooth()
+  })
+  
+  
+  }#,
+  #options = list(height = 950)
 
-#shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server)
 
-)
+
 ```
 
+<iframe src="https://nwbirk.shinyapps.io/bst260-final-project/" width="100%" height="400px"></iframe>
 
 # Conclusion
 
