@@ -354,7 +354,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f34c', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
     }
     
@@ -363,7 +363,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f351', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }
     
@@ -372,7 +372,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f34e', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }  
     
@@ -381,7 +381,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f951', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
     }  
     
@@ -390,7 +390,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f336', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }  
     
@@ -399,7 +399,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f966', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }  
     
@@ -408,7 +408,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f957', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
      }  
     
@@ -417,7 +417,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f955', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }  
     
@@ -426,7 +426,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f346', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
     }  
     
@@ -435,7 +435,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f347', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
     }  
     
@@ -444,7 +444,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f34b', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
      }  
     
@@ -453,7 +453,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f344', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
         }  
     
@@ -462,7 +462,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f348', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
         }  
     
@@ -471,7 +471,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f34a', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
         }  
     
@@ -480,7 +480,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f350', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
        }  
     
@@ -489,7 +489,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f34d', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
         }  
     
@@ -498,7 +498,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f954', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
      }  
     
@@ -507,7 +507,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f343', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
          }  
     
@@ -516,7 +516,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f345', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
              }  
     
@@ -525,7 +525,7 @@ server <- function(input, output) {
       filter(fruit == input$product) %>%
       ggplot(aes(x = year, y = value)) + 
       geom_emoji(emoji = '1f349', size = 0.04) + 
-      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availbility over time')) + xlab('Year') +
+      geom_line(alpha = 0.3) + ggtitle(paste0(names(veg_names[which(veg_names == input$product)]), ' availability over time')) + xlab('Year') +
       ylab('Per capita availability (lbs)') 
   }  
     
