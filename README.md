@@ -14,7 +14,9 @@ Data on per capita annual availability for fruits and vegetables is available th
 
 To begin, I wanted to observe how the total availability varies over time.
 
+![Time Plot](https://github.com/nwbirk/bst260-final-project/blob/master/timeplot.png)
 
+![Model](https://github.com/nwbirk/bst260-final-project/blob/master/modeloutput.png)
 
 <iframe src="https://nwbirk.shinyapps.io/bst260-final-project/" width="100%" height="950px"></iframe>
 
