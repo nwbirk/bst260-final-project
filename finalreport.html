@@ -415,7 +415,7 @@ potatoes &lt;- read.csv('potatoes.csv')
 spinach &lt;- read.csv('spinach.csv')
 tomatoes &lt;- read.csv('tomatoes.csv')
 watermelon &lt;- read.csv('watermelon.csv')</code></pre>
-<p>Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Department of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).</p>
+<p>Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Bureau of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).</p>
 <pre class="r"><code>covariates &lt;- read.csv('outcomes.csv')</code></pre>
 <p>Note that farm income is in terms of 2019 dollars (i.e. adjusted for inflation).</p>
 <pre class="r"><code>if(!require(dslabs)) install.packages('dslabs')</code></pre>

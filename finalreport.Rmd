@@ -50,7 +50,7 @@ tomatoes <- read.csv('tomatoes.csv')
 watermelon <- read.csv('watermelon.csv')
 ```
 
-Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Department of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).
+Now, we can read in the data for potential covariates. otential predictors included in the analysis were diabetes prevalence (available from the Centers for Disease Control and Prevention), average annual farm income (available from the US Department of Agriculture), annual unemployment rate (available from the US Bureau of Labor Statistics), percent GDP spending on healthcare (available from the Centers for Medicare and Medicaid Services) , average life expectancy, population, and GDP (available from the Gapminder foundation).
 
 ```{r}
 covariates <- read.csv('outcomes.csv')
