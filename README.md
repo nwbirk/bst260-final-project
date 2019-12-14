@@ -36,6 +36,5 @@ The interactive data visualization app helps us to uncover some interesting tren
 
 ### Video Summary
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/gJoZIsG6HrA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UU24bedoPdY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
